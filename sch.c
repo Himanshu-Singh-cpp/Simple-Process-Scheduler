@@ -22,7 +22,6 @@ int TSLICE;
 
 struct program
 {
-    char **command;
     pid_t pid;
     bool created;
     double start;
@@ -36,8 +35,8 @@ struct program
 int num_commands = 0;
 struct program *arr[100];
 struct program *history_arr[100];
-int start = 50;
-int end = 50;
+int start = 99;
+int end = 99;
 static volatile int keepRunning = 1;
 
 struct program *pop()
@@ -146,10 +145,6 @@ void make_struct_and_push(char *command)
     struct timeval start_time;
     gettimeofday(&start_time, NULL);
     struct program *p1 = (struct program *)malloc(sizeof(struct program));
-    char *arr1[2];
-    arr1[0] = command;
-    arr1[1] = NULL;
-    p1->command = arr1;
     p1->cmd=command;
     p1->created = false;
     p1->start = (double)start_time.tv_sec + start_time.tv_usec / 1000000.0;
@@ -165,8 +160,8 @@ int main()
     // shared memory string to store all commands
     const char *name = "shared_memory";
     int fd = shm_open(name, O_CREAT | O_RDWR, 0666);
-    ftruncate(fd, 128);
-    char *shm = (char *)mmap(NULL, 128, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    ftruncate(fd, 1024);
+    char *shm = (char *)mmap(NULL, 1024, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     // shared memory int to store how many commands recieved during the sleep time
     const char *num_command = "num_command";
@@ -269,7 +264,7 @@ int main()
     history();
     printf("Exited the while loop\n");
 
-    munmap(shm, 128);
+    munmap(shm, 1024);
     shm_unlink(name);
     close(fd);
 
