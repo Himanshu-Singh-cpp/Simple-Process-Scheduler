@@ -122,8 +122,15 @@ void shell_loop(char*shm,int*shm_count)
     } while (status != -1);
 }
 
-int main(void)
+int main(int argc,char*argv[])
 {
+    if(argc!=3){
+        printf("Invalid no. of command line arguments\n");
+        return EXIT_FAILURE;
+    }
+
+    int NCPU=atoi(argv[1]);
+    int TSLICE = atoi(argv[2]);
     // signal handler for control c
     signal(SIGINT, my_handler);
 
@@ -135,9 +142,11 @@ int main(void)
 
     const char* num_command="num_command";
     int fd_int = shm_open(num_command, O_CREAT | O_RDWR, 0666);
-    ftruncate(fd_int,8);
-    int* shm_count=(int*)mmap(NULL,8,PROT_READ| PROT_WRITE,MAP_SHARED,fd_int,0);
+    ftruncate(fd_int,24);
+    int* shm_count=(int*)mmap(NULL,24,PROT_READ| PROT_WRITE,MAP_SHARED,fd_int,0);
     *shm_count=0;
+    *(shm_count+1)=NCPU;
+    *(shm_count+2)=TSLICE;
 
     // forking parent process to run scheduler as the child process
     if(fork()==0){
@@ -155,7 +164,7 @@ int main(void)
     shm_unlink(name);
     close(fd);
 
-    munmap(shm_count,128);
+    munmap(shm_count,24);
     shm_unlink(num_command);
     close(fd_int);
     
