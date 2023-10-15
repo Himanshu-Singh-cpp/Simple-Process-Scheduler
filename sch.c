@@ -17,8 +17,8 @@
 int count = 0;
 int buffer = 0;
 
-#define NCPU 2
-#define TSLICE 10
+int NCPU;
+int TSLICE;
 
 struct program
 {
@@ -171,8 +171,12 @@ int main()
     // shared memory int to store how many commands recieved during the sleep time
     const char *num_command = "num_command";
     int fd_int = shm_open(num_command, O_CREAT | O_RDWR, 0666);
-    ftruncate(fd_int, 8);
-    int *shm_count = (int *)mmap(NULL, 8, PROT_READ | PROT_WRITE, MAP_SHARED, fd_int, 0);
+    ftruncate(fd_int, 24);
+    int *shm_count = (int *)mmap(NULL, 24, PROT_READ | PROT_WRITE, MAP_SHARED, fd_int, 0);
+
+    // recieving value of NCPU and TSLICE from shell
+    NCPU=*(shm_count+1);
+    TSLICE=*(shm_count+2);
 
     struct program *temp_arr[NCPU];
     // while loop which is executed at end of each time slice
@@ -264,13 +268,12 @@ int main()
     // prints history and does the cleanup
     history();
     printf("Exited the while loop\n");
-    exit(EXIT_SUCCESS);
 
     munmap(shm, 128);
     shm_unlink(name);
     close(fd);
 
-    munmap(shm_count, 128);
+    munmap(shm_count, 24);
     shm_unlink(num_command);
     close(fd_int);
 
