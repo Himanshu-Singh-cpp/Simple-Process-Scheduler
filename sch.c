@@ -37,12 +37,16 @@ struct program *arr[100];
 struct program *history_arr[100];
 int start = 99;
 int end = 99;
+int capacity=100;
 static volatile int keepRunning = 1;
 
 struct program *pop()
 {
-    if (end > start)
-        return arr[--end];
+    if (end != start){
+        if(end==0) end=99;
+        else end--;
+        return arr[end];
+    }
     else
     {
         printf("Stack is empty\n");
@@ -52,9 +56,11 @@ struct program *pop()
 
 void push(struct program *bottom)
 {
-    if (end < 100)
+    if ((end+1)%capacity!=start)
     {
-        arr[--start] = bottom;
+        if(start==0) start=99;
+        else start--;
+        arr[start] = bottom;
     }
     else
         printf("Array size reached\n");
@@ -69,14 +75,16 @@ bool isEmpty()
 
 bool isFull()
 {
-    if (end == 100)
+    if ((end+1)%capacity==start)
         return true;
     return false;
 }
 
 struct program *top()
 {
-    return arr[end - 1];
+
+    if (end==0) return arr[99];
+    return arr[end-1];
 }
 
 void create_process()
