@@ -72,7 +72,7 @@ char **tokenise(char **param_array, char *command)
 }
 
 // takes the command as input to parse it to pass it to appropriate function
-int launch(char *command,char*shm)
+int launch(char *command,char*shm,int*shm_count)
 {
     char **param_array = (char **)malloc(64 * sizeof(char *));
     if (param_array == NULL)
@@ -85,6 +85,9 @@ int launch(char *command,char*shm)
     {
         strcpy(shm+buffer,param_array[1]);
         buffer+=strlen(param_array[1])+1;
+        num_commands++;
+        *shm_count=num_commands;
+        printf("num_comm %d\n",num_commands);
         return 0;
     }
     else
@@ -116,9 +119,7 @@ void shell_loop(char*shm,int*shm_count)
     {
         printf("user@LAPTOP:> ");
         char *command = read_user_input();
-        status = launch(command,shm);
-        num_commands++;
-        *shm_count=num_commands;
+        status = launch(command,shm,shm_count);
     } while (status != -1);
 }
 
@@ -137,8 +138,8 @@ int main(int argc,char*argv[])
     // creating shared memory
     const char* name = "shared_memory";
     int fd = shm_open(name, O_CREAT | O_RDWR, 0666);
-    ftruncate(fd, 128);
-    char* shm = (char*)mmap(NULL, 128, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    ftruncate(fd, 1024);
+    char* shm = (char*)mmap(NULL, 1024, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     const char* num_command="num_command";
     int fd_int = shm_open(num_command, O_CREAT | O_RDWR, 0666);
@@ -160,7 +161,7 @@ int main(int argc,char*argv[])
     }
 
     // cleanup of the shared memory
-    munmap(shm, 128);
+    munmap(shm, 1024);
     shm_unlink(name);
     close(fd);
 
