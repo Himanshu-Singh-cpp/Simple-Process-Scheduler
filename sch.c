@@ -137,7 +137,7 @@ void history()
         printf("\ncommand %s\n", history_arr[i]->cmd);
         printf("pid is %d\n", history_arr[i]->pid);
         printf("Execution time %f\n", total_time);
-        printf("Waiting Time %f\n", total_time-history_arr[i]->cycles*TSLICE);
+        printf("Waiting Time %f\n", total_time-history_arr[i]->cycles*TSLICE/1000.0);
     }
 }
 
@@ -187,7 +187,7 @@ int main()
     {
         if (shm != NULL)
         {
-            printf("count of commands is %d\n",count);
+            // printf("count of commands is %d\n",count);
             // checking if new command it sent from shell to scheduler
             while (count < *shm_count)
             {
@@ -197,7 +197,7 @@ int main()
             }
         }
 
-        printf("start %d end %d\n", start, end);
+        // printf("start %d end %d\n", start, end);
 
         // counts the number of process in queue
         int count_current = 0;
@@ -230,9 +230,9 @@ int main()
             }
         }
         // scheduler goes to sleep for TSLICE time
-        printf("gone to sleep\n");
-        sleep(TSLICE);
-        printf("exited the sleep\n");
+        // printf("gone to sleep\n");
+        usleep(TSLICE*1000);
+        // printf("exited the sleep\n");
         // Sends stop signal to processes, if the process not ended process is added to back of the queue
         for (int i = 0; i < NCPU; i++)
         {
@@ -265,7 +265,7 @@ int main()
                 }
             }
         }
-        printf("start %d end %d", start, end);
+        // printf("start %d end %d", start, end);
     }
 
     // prints history and does the cleanup
