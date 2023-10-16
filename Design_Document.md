@@ -1,5 +1,7 @@
 ***************************************  DESIGN DOCUMENT ******************************************
 
+Github link: [https://github.com/Singh-Himanshu-cpp/OS-assignment-3/edit/main/Design_Document.md ](https://github.com/Singh-Himanshu-cpp/OS-assignment-3)
+
 In this assignment we have created a process scheduler. This runs in the background of the Simple Shell.
 
 We have implemented both Round Robin Scheduling and Priority Based Scheduling.
