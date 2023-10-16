@@ -155,10 +155,10 @@ void history()
         double total_time = (double)(history_arr[i]->end - history_arr[i]->start);
         printf("\ncommand %s\n", history_arr[i]->cmd);
         printf("pid is %d\n", history_arr[i]->pid);
-        printf("priority %d",history_arr[i]->priority);
+        printf("priority %d\n",history_arr[i]->priority);
         printf("Execution time %f\n", total_time);
         // printf("Waiting Time %f\n", total_time - history_arr[i]->cycles * TSLICE / 1000.0);
-        printf("waiting time %f",history_arr[i]->time);
+        printf("waiting time %f\n",history_arr[i]->time);
     }
 }
 
@@ -234,11 +234,11 @@ int main()
                 count++;
             }
         }
-        printf("Prioritizing queus\n");
+        // printf("Prioritizing queus\n");
         for (int j = 3; j >= 0; j--)
         {
-            printf("entered the loop\n");
-            printf("%dth start %d end %d\n",j, q_arr[j]->start, q_arr[j]->end);
+            // printf("entered the loop\n");
+            // printf("%dth start %d end %d\n",j, q_arr[j]->start, q_arr[j]->end);
 
             // counts the number of process in queue
             int count_current = 0;
@@ -254,7 +254,7 @@ int main()
                         struct timeval middle;
                         gettimeofday(&middle, NULL);
                         top(q_arr[j])->time = middle.tv_sec + middle.tv_usec / 1000000.0 - top(q_arr[j])->end;
-                        printf("Resumed process\n");
+                        // printf("Resumed process\n");
                         resume_process(top(q_arr[j]));
                     }
                     else
@@ -287,7 +287,7 @@ int main()
                         pid_t wpid = waitpid(temp_arr[i]->pid, &status, WNOHANG);
                         if (wpid == 0)
                         {
-                            printf("\nprocess continued\n");
+                            // printf("\nprocess continued\n");
                             struct timeval end_time;
                             gettimeofday(&end_time, NULL);
                             temp_arr[i]->end = (double)end_time.tv_sec + end_time.tv_usec / 1000000.0;
@@ -302,7 +302,7 @@ int main()
                             gettimeofday(&end_time, NULL);
                             temp_arr[i]->end = (double)end_time.tv_sec + end_time.tv_usec / 1000000.0;
                             history_arr[num_commands++] = temp_arr[i];
-                            printf("process has ended\n");
+                            // printf("process has ended\n");
                         }
                     }
                     else
