@@ -93,7 +93,7 @@ int launch(char *command,char*shm,int*shm_count,int*shm_p)
         buffer+=strlen(param_array[1])+1;
         num_commands++;
         *shm_count=num_commands;
-        printf("num_comm %d\n",num_commands);
+        // printf("num_comm %d\n",num_commands);
         return 0;
     }
     else
