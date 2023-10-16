@@ -197,7 +197,7 @@ void execute_queue(int j){
                         {
                             struct timeval middle;
                             gettimeofday(&middle, NULL);
-                            top(q_arr[j])->time = middle.tv_sec + middle.tv_usec / 1000000.0 - top(q_arr[j])->end;
+                            top(q_arr[j])->time += middle.tv_sec + middle.tv_usec / 1000000.0 - top(q_arr[j])->end;
                             // printf("Resumed process\n");
                             resume_process(top(q_arr[j]));
                         }
