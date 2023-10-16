@@ -72,7 +72,7 @@ char **tokenise(char **param_array, char *command)
 }
 
 // takes the command as input to parse it to pass it to appropriate function
-int launch(char *command,char*shm,int*shm_count)
+int launch(char *command,char*shm,int*shm_count,int*shm_p)
 {
     char **param_array = (char **)malloc(64 * sizeof(char *));
     if (param_array == NULL)
@@ -83,6 +83,12 @@ int launch(char *command,char*shm,int*shm_count)
     param_array = tokenise(param_array, command);
     if (strcmp(param_array[0], "submit") == 0)
     {
+        if(param_array[2]== NULL){
+            *(shm_p+num_commands)=1;
+        }
+        else{
+            *(shm_p+num_commands)=atoi(param_array[2]);
+        }
         strcpy(shm+buffer,param_array[1]);
         buffer+=strlen(param_array[1])+1;
         num_commands++;
@@ -112,14 +118,14 @@ char *read_user_input()
 
 
 // infinite loop to take input from user and pass it to the scheduler
-void shell_loop(char*shm,int*shm_count)
+void shell_loop(char*shm,int*shm_count,int*shm_p)
 {
     int status;
     do
     {
         printf("user@LAPTOP:> ");
         char *command = read_user_input();
-        status = launch(command,shm,shm_count);
+        status = launch(command,shm,shm_count,shm_p);
     } while (status != -1);
 }
 
@@ -149,6 +155,11 @@ int main(int argc,char*argv[])
     *(shm_count+1)=NCPU;
     *(shm_count+2)=TSLICE;
 
+    const char* name_p="name_p";
+    int fd_p = shm_open(name_p, O_CREAT | O_RDWR, 0666);
+    ftruncate(fd_p,400);
+    int* shm_p=(int*)mmap(NULL,400,PROT_READ| PROT_WRITE,MAP_SHARED,fd_p,0);
+
     // forking parent process to run scheduler as the child process
     if(fork()==0){
         char*arg[2];
@@ -157,7 +168,7 @@ int main(int argc,char*argv[])
         execv(arg[0],arg);
     }
     else{
-        shell_loop(shm,shm_count);
+        shell_loop(shm,shm_count,shm_p);
     }
 
     // cleanup of the shared memory
@@ -168,6 +179,10 @@ int main(int argc,char*argv[])
     munmap(shm_count,24);
     shm_unlink(num_command);
     close(fd_int);
+
+    munmap(shm_p,400);
+    shm_unlink(name_p);
+    close(fd_p);
     
     return 0;
 }
