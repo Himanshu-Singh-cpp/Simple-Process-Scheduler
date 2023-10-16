@@ -30,6 +30,7 @@ struct program
     int cycles;
     char *cmd;
     int priority;
+    int start_priority;
 };
 
 struct queue
@@ -155,9 +156,10 @@ void history()
         double total_time = (double)(history_arr[i]->end - history_arr[i]->start);
         printf("\ncommand %s\n", history_arr[i]->cmd);
         printf("pid is %d\n", history_arr[i]->pid);
-        printf("priority %d\n", history_arr[i]->priority);
+        // printf("priority %d\n", history_arr[i]->priority);
+        printf("initial priority %d\n",history_arr[i]->start_priority);
         printf("Execution time %f\n", total_time);
-        // printf("Waiting Time %f\n", total_time - history_arr[i]->cycles * TSLICE / 1000.0);
+        // printf("Waiting Time %f\n", -total_time + (history_arr[i]->cycles * TSLICE) / 1000.0);
         printf("waiting time %f\n", history_arr[i]->time);
     }
 }
@@ -176,6 +178,7 @@ void make_struct_and_push(char *command, int priority)
     struct program *p1 = (struct program *)malloc(sizeof(struct program));
     p1->cmd = command;
     p1->created = false;
+    p1->start_priority=priority;
     p1->start = (double)start_time.tv_sec + start_time.tv_usec / 1000000.0;
     p1->priority = priority;
     push(p1, q_arr[priority - 1]);
@@ -196,7 +199,7 @@ void execute_queue(int j){
                         {
                             struct timeval middle;
                             gettimeofday(&middle, NULL);
-                            top(q_arr[j])->time = middle.tv_sec + middle.tv_usec / 1000000.0 - top(q_arr[j])->end;
+                            top(q_arr[j])->time += middle.tv_sec + middle.tv_usec / 1000000.0 - top(q_arr[j])->end;
                             // printf("Resumed process\n");
                             resume_process(top(q_arr[j]));
                         }
@@ -208,7 +211,7 @@ void execute_queue(int j){
                             top(q_arr[j])->created = true;
                             create_process(top(q_arr[j])->priority);
                         }
-                        top(q_arr[j])->cycles++;
+                        top(q_arr[j])->cycles=top(q_arr[j])->cycles+1;
 
                         temp_arr[i] = pop(q_arr[j]);
                     }
